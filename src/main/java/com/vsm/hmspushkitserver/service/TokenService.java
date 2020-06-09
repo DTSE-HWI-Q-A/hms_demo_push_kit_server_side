@@ -2,14 +2,12 @@ package com.vsm.hmspushkitserver.service;
 
 import com.google.gson.Gson;
 import com.vsm.hmspushkitserver.configuration.APIConfiguration;
-import com.vsm.hmspushkitserver.dto.PushRequest;
 import com.vsm.hmspushkitserver.dto.PushResponse;
 import com.vsm.hmspushkitserver.dto.auth.AuthResponse;
 import okhttp3.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,13 +15,6 @@ import java.io.IOException;
 @Service
 public class TokenService implements APIConfiguration {
     private static final Logger logger = LogManager.getLogger(TokenService.class.getSimpleName());
-
-    @Value("${token.grant_type}")
-    private String grant_type;
-    @Value("${agc.client_secret}")
-    private String client_secret;
-    @Value("${agc.client_id}")
-    private String client_id;
 
     public PushResponse getTransactionToken(){
         PushResponse response = new PushResponse();
@@ -33,7 +24,7 @@ public class TokenService implements APIConfiguration {
             OkHttpClient client = new OkHttpClient().newBuilder()
                     .build();
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-            RequestBody body = RequestBody.create(mediaType, "grant_type=client_credentials&client_secret=9033da2c6a5c68abed1b795fdc51c477e6fae733b44d2aa6556a2cd29e5b87ce&client_id=101864189");
+            RequestBody body = RequestBody.create(mediaType, "grant_type=client_credentials&client_secret=insert_your_app_secret&client_id=insert_your_client_id");
             Request request2 = new Request.Builder()
                     .url("https://oauth-login.cloud.huawei.com/oauth2/v3/token")
                     .method("POST", body)

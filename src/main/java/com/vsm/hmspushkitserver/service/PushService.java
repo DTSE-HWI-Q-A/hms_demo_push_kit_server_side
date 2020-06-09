@@ -2,21 +2,19 @@ package com.vsm.hmspushkitserver.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.vsm.hmspushkitserver.configuration.APIConfiguration;
 import com.vsm.hmspushkitserver.dto.PushRequest;
 import com.vsm.hmspushkitserver.dto.PushResponse;
 import com.vsm.hmspushkitserver.dto.messages.*;
 import okhttp3.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PushService {
-    private static final Logger logger = LogManager.getLogger(PushService.class.getSimpleName());
-    public PushResponse sendNotification(PushRequest pushReques){
+public class PushService implements APIConfiguration {
+    public PushResponse sendNotification(PushRequest pushReques) {
         PushResponse finalResponse = new PushResponse();
-        try{
+        try {
             OkHttpClient client = new OkHttpClient().newBuilder().build();
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
 
@@ -26,7 +24,7 @@ public class PushService {
 
             RequestBody body = RequestBody.create(mediaType, jsonObj.toString());
             Request request = new Request.Builder()
-                    .url("https://push-api.cloud.huawei.com/v1/101864189/messages:send")
+                    .url(API_SEND_NOTIFICATION)
                     .method("POST", body)
                     .addHeader("Content-Type", "application/x-www-form-urlencoded")
                     .addHeader("Authorization", pushReques.getToken())
