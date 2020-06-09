@@ -1,0 +1,42 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.0.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'java'
+}
+
+group = 'com.vsm'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	//retrofit
+	implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+	//gson converter
+	compile 'com.squareup.retrofit2:converter-gson:2.9.0'
+	//interceptor
+	compile 'com.squareup.okhttp3:logging-interceptor:3.8.0'
+	//gson
+	implementation 'com.google.code.gson:gson:2.8.5'
+	implementation group: 'org.json', name: 'json', version: '20200518'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
