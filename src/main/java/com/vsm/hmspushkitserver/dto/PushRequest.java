@@ -8,6 +8,7 @@ import java.util.List;
 public class PushRequest {
     private String tittle;
     private String message;
-    private List <String> usersTokens;
+    private String token;
+    private List<String>usersTokens;
 }
 

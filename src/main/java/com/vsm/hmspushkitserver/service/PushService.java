@@ -1,85 +1,63 @@
 package com.vsm.hmspushkitserver.service;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.vsm.hmspushkitserver.configuration.APIConfiguration;
-import com.vsm.hmspushkitserver.configuration.RetrofitClient;
+import com.google.gson.GsonBuilder;
 import com.vsm.hmspushkitserver.dto.PushRequest;
 import com.vsm.hmspushkitserver.dto.PushResponse;
-import com.vsm.hmspushkitserver.dto.auth.AuthRequest;
-import com.vsm.hmspushkitserver.dto.auth.AuthResponse;
-import com.vsm.hmspushkitserver.repository.RepositoryInterface;
+import com.vsm.hmspushkitserver.dto.messages.*;
 import okhttp3.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 @Service
-public class PushService implements APIConfiguration {
+public class PushService {
     private static final Logger logger = LogManager.getLogger(PushService.class.getSimpleName());
-
-
-    @Autowired
-    private RetrofitClient retrofitInit;
-    @Value("${token.grant_type}")
-    private String grant_type;
-    @Value("${agc.client_secret}")
-    private String client_secret;
-    @Value("${agc.client_id}")
-    private String client_id;
-    @Value(("${token.content_type}"))
-    private String content_type;
-
-    public PushResponse getTransactionToken(PushRequest request){
-        PushResponse response = new PushResponse();
-
-        AuthResponse authResponse = null;
-        try {
-            OkHttpClient client = new OkHttpClient().newBuilder()
-                    .build();
+    public PushResponse sendNotification(PushRequest pushReques){
+        PushResponse finalResponse = new PushResponse();
+        try{
+            OkHttpClient client = new OkHttpClient().newBuilder().build();
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-            RequestBody body = RequestBody.create(mediaType, "grant_type=client_credentials&client_secret=9033da2c6a5c68abed1b795fdc51c477e6fae733b44d2aa6556a2cd29e5b87ce&client_id=101864189");
-            Request request2 = new Request.Builder()
-                    .url("https://oauth-login.cloud.huawei.com/oauth2/v3/token")
+
+            Gson gson = new GsonBuilder().create();
+            String json = gson.toJson(getMessage(pushReques));
+            JSONObject jsonObj = new JSONObject(json);
+
+            RequestBody body = RequestBody.create(mediaType, jsonObj.toString());
+            Request request = new Request.Builder()
+                    .url("https://push-api.cloud.huawei.com/v1/101864189/messages:send")
                     .method("POST", body)
                     .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                    .addHeader("Authorization", pushReques.getToken())
                     .build();
-            Response response2 = client.newCall(request2).execute();
-            logger.info("Method: getTransactionToken(): " + response2.body().toString());
-            Gson gson = new Gson();
-            authResponse = gson.fromJson(response2.body().string(), AuthResponse.class);
-            if (authResponse!=null)
-            {
-                logger.info("Method: getTransactionToken(): " + authResponse.toString());
-                response.setId(1);
-                response.setDescription("OK");
-                response.setTokenResponse(authResponse);
-            }else
-                {
-                response.setId(-1);
-                response.setDescription("An error occurred");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            response.setId(-1);
-            response.setDescription(e.getMessage());
-            logger.error("Method: getTransactionToken(): " + e.getMessage());
-            return response;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            response.setId(-1);
-            response.setDescription(e.getMessage());
+            Response response = client.newCall(request).execute();
+            finalResponse.setId(1);
+            finalResponse.setDescription("Message sent");
+
+        }catch (Exception e){
+finalResponse.setDescription(e.getMessage());
+finalResponse.setId(-1);
+return finalResponse;
         }
-        return response;
+        return finalResponse;
     }
+
+    private MessagesRequest getMessage(PushRequest pushReques){
+        Notification notification = new Notification(pushReques.getTittle(),pushReques.getMessage());
+
+        ClickAction clickAction = new ClickAction(1,"#Intent;compo=com.rvr/.Activity;S.W=U;end");
+        Notification_ notification_= new Notification_(pushReques.getTittle(),pushReques.getMessage(),clickAction);
+
+        Android android = new Android(notification_);
+
+        Message message = new Message(notification,android,pushReques.getUsersTokens());
+
+        MessagesRequest messagesRequest = new MessagesRequest();
+        messagesRequest.setValidateOnly(false);
+        messagesRequest.setMessage(message);
+        return messagesRequest;
+    }
+
 
 }
