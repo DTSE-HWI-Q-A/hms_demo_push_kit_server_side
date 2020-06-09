@@ -26,7 +26,7 @@ public class TokenService implements APIConfiguration {
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
             RequestBody body = RequestBody.create(mediaType, "grant_type=client_credentials&client_secret=insert_your_app_secret&client_id=insert_your_client_id");
             Request request2 = new Request.Builder()
-                    .url("https://oauth-login.cloud.huawei.com/oauth2/v3/token")
+                    .url(API_TOKEN_URL)
                     .method("POST", body)
                     .addHeader("Content-Type", "application/x-www-form-urlencoded")
                     .build();
